@@ -1,0 +1,160 @@
+.rw-bs-admin-wrap .rw-bs-type-group {
+  display: none;
+  border: 1px solid #ccd0d4;
+  padding: 12px;
+  margin: 12px 0;
+  background: #fff;
+}
+
+.rw-bs-hours-table {
+  margin-top: 8px;
+}
+
+.rw-bs-actions {
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid #ccd0d4;
+  background: #fff;
+}
+
+.rw-bs-help-links {
+  margin: 10px 0 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Wizard welcome banner */
+.rw-bs-wizard-banner {
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  border-left-color: #2271b1;
+}
+
+.rw-bs-wizard-banner h2 {
+  margin-top: 0;
+  font-size: 1.3em;
+}
+
+.rw-bs-wizard-banner ol {
+  margin: 8px 0 14px 20px;
+}
+
+/* Shared setup/help card style */
+.rw-bs-help-card,
+.rw-bs-setup-box,
+.rw-bs-shortcode-ref {
+  background: #f6f7f7;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin: 12px 0 20px;
+  max-width: 980px;
+}
+
+.rw-bs-setup-box > p {
+  margin-top: 0;
+  font-size: 13px;
+}
+
+.rw-bs-steps {
+  counter-reset: rw-step;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rw-bs-steps > li {
+  counter-increment: rw-step;
+  margin-bottom: 14px;
+  padding-left: 2em;
+  position: relative;
+  font-size: 13px;
+}
+
+.rw-bs-steps > li::before {
+  content: counter(rw-step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  background: #2271b1;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.rw-bs-steps > li > strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.rw-bs-steps ol {
+  margin: 4px 0 0 16px;
+}
+
+.rw-bs-steps ol li {
+  margin-bottom: 3px;
+  font-size: 12px;
+  color: #3c434a;
+}
+
+code.rw-bs-uri {
+  display: inline-block;
+  margin-top: 4px;
+  background: #1d2327;
+  color: #a8ffa0;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+/* Location metabox */
+.rw-bs-location-metabox .rw-bs-type-group {
+  border: 1px solid #ccd0d4;
+  padding: 10px;
+  margin: 8px 0;
+  background: #fafafa;
+}
+
+/* Shortcode reference styles */
+.rw-bs-ref-table th {
+  font-weight: 600;
+  width: 26%;
+}
+
+.rw-bs-ref-table td,
+.rw-bs-ref-table th {
+  padding: 8px 10px;
+  vertical-align: top;
+  font-size: 12px;
+}
+
+.rw-bs-ref-table code {
+  display: inline-block;
+  margin: 1px 0;
+  white-space: nowrap;
+}
+
+.rw-bs-tag-list {
+  margin: 8px 0 0 18px;
+  list-style: disc;
+}
+
+.rw-bs-tag-list li {
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #3c434a;
+}
+
+.rw-bs-help-page .description {
+  max-width: 980px;
+  margin-bottom: 10px;
+}
