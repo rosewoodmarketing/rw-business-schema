@@ -25,6 +25,8 @@ function rw_bs_get_settings() {
         'rating_value' => '',
         'rating_count' => '',
         'multi_location' => false,
+        'schema_target_page_id' => 0,
+        'schema_target_path' => '',
         'github_token' => '',
         'gbp_client_id' => '',
         'gbp_client_secret' => '',

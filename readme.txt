@@ -31,6 +31,12 @@ RW Business Schema lets you manage your business data once and reuse it everywhe
 
 == Changelog ==
 
+= 1.0.2 =
+* Added schema output targeting using a page selector with manual path fallback in single-location mode.
+* Added per-location schema target controls (page selector + path fallback) in Multi-Location mode.
+* Hid single-location schema fields on Settings when Multi-Location mode is enabled.
+* Prevented global single-location schema output while Multi-Location mode is enabled.
+
 = 1.0.1 =
 * Fixed admin menu routing when Multi-Location is enabled so Business Schema consistently opens Settings first.
 * Fixed missing Settings submenu edge cases by normalizing submenu ordering.

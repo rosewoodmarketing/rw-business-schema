@@ -85,24 +85,100 @@ class RW_BS_Schema_Generator {
         return $value !== null && $value !== '';
     }
 
+    private static function normalize_path($path) {
+        $path = trim((string) $path);
+        if ($path === '') {
+            return '';
+        }
+
+        if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
+            $parsed_path = wp_parse_url($path, PHP_URL_PATH);
+            $path = is_string($parsed_path) ? $parsed_path : '';
+        }
+
+        if ($path === '') {
+            return '';
+        }
+
+        $path = '/' . ltrim($path, '/');
+        $path = preg_replace('/\/+/', '/', $path);
+
+        if ($path !== '/') {
+            $path = untrailingslashit($path) . '/';
+        }
+
+        return strtolower($path);
+    }
+
+    private static function get_current_request_path() {
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? (string) wp_unslash($_SERVER['REQUEST_URI']) : '/';
+        $path = wp_parse_url($request_uri, PHP_URL_PATH);
+
+        if (!is_string($path) || $path === '') {
+            $path = '/';
+        }
+
+        $site_path = wp_parse_url(home_url('/'), PHP_URL_PATH);
+        if (is_string($site_path) && $site_path !== '' && $site_path !== '/') {
+            $site_path = rtrim($site_path, '/');
+            if (strpos($path, $site_path) === 0) {
+                $path = substr($path, strlen($site_path));
+                if ($path === false || $path === '') {
+                    $path = '/';
+                }
+            }
+        }
+
+        return self::normalize_path($path);
+    }
+
+    private static function should_output_for_target($page_id, $path) {
+        $page_id = absint($page_id);
+        $path = self::normalize_path($path);
+
+        if ($page_id > 0 && is_page($page_id)) {
+            return true;
+        }
+
+        if ($path !== '' && self::get_current_request_path() === $path) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function output_schema() {
         if (is_admin()) {
             return;
         }
 
-        $schema = self::build_schema();
-        if (!empty($schema['name'])) {
-            echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
-        }
+        $settings = rw_bs_get_settings();
+        $is_multi = !empty($settings['multi_location']);
 
-        if (!empty(rw_bs_get_field('multi_location')) && class_exists('RW_BS_Locations')) {
+        if ($is_multi && class_exists('RW_BS_Locations')) {
             $locations = RW_BS_Locations::get_all_locations();
             foreach ($locations as $loc) {
+                $target = RW_BS_Locations::get_location_target($loc->ID);
+                if (!self::should_output_for_target($target['page_id'] ?? 0, $target['path'] ?? '')) {
+                    continue;
+                }
+
                 $loc_schema = self::build_schema(RW_BS_Locations::get_location_settings($loc->ID));
                 if (!empty($loc_schema['name'])) {
                     echo '<script type="application/ld+json">' . wp_json_encode($loc_schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
                 }
             }
+
+            return;
+        }
+
+        if (!self::should_output_for_target($settings['schema_target_page_id'] ?? 0, $settings['schema_target_path'] ?? '')) {
+            return;
+        }
+
+        $schema = self::build_schema($settings);
+        if (!empty($schema['name'])) {
+            echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
         }
     }
 }

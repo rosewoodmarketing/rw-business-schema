@@ -58,6 +58,24 @@ if (!defined('ABSPATH')) {
             </select>
         </td>
     </tr>
+    <tr>
+        <th><label for="rw_bs_loc_schema_target_page_id">Schema Output Target</label></th>
+        <td>
+            <?php
+            wp_dropdown_pages(array(
+                'name' => 'rw_bs_loc[schema_target_page_id]',
+                'id' => 'rw_bs_loc_schema_target_page_id',
+                'show_option_none' => 'Select a page',
+                'option_none_value' => '0',
+                'selected' => (int) ($target['page_id'] ?? 0),
+            ));
+            ?>
+            <p>
+                <input class="regular-text" type="text" name="rw_bs_loc[schema_target_path]" value="<?php echo esc_attr($target['path'] ?? ''); ?>" placeholder="/locations/downtown/" />
+            </p>
+            <p class="description">Use the page selector when available. If the page is not available, set a path fallback (for example, <code>/locations/downtown/</code>).</p>
+        </td>
+    </tr>
 </table>
 
 <h3>Business Type Fields</h3>

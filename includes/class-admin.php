@@ -95,53 +95,80 @@ class RW_BS_Admin {
         $current = rw_bs_get_settings();
         $output = $current;
 
-        $output['business_type'] = in_array(($input['business_type'] ?? 'LocalBusiness'), RW_BS_Type_Definitions::get_type_keys(), true)
-            ? $input['business_type']
-            : 'LocalBusiness';
+        if (array_key_exists('business_type', $input)) {
+            $output['business_type'] = in_array(($input['business_type'] ?? 'LocalBusiness'), RW_BS_Type_Definitions::get_type_keys(), true)
+                ? $input['business_type']
+                : 'LocalBusiness';
+        }
 
         $text_fields = array(
             'company_name', 'street', 'city', 'state', 'postal_code', 'country',
             'phone_primary', 'phone_secondary', 'price_range', 'hours_display',
-            'gbp_location',
+            'gbp_location', 'schema_target_path',
         );
 
         foreach ($text_fields as $field) {
-            $output[$field] = sanitize_text_field($input[$field] ?? '');
+            if (array_key_exists($field, $input)) {
+                $output[$field] = sanitize_text_field($input[$field]);
+            }
         }
 
-        $output['email_primary'] = sanitize_email($input['email_primary'] ?? '');
-        $output['email_secondary'] = sanitize_email($input['email_secondary'] ?? '');
-        $output['website'] = esc_url_raw($input['website'] ?? '');
-        $output['gbp_client_id'] = sanitize_text_field($input['gbp_client_id'] ?? '');
-        $output['gbp_client_secret'] = sanitize_text_field($input['gbp_client_secret'] ?? '');
-        $output['rating_value'] = sanitize_text_field($input['rating_value'] ?? '');
-        $output['rating_count'] = sanitize_text_field($input['rating_count'] ?? '');
+        if (array_key_exists('email_primary', $input)) {
+            $output['email_primary'] = sanitize_email($input['email_primary']);
+        }
+        if (array_key_exists('email_secondary', $input)) {
+            $output['email_secondary'] = sanitize_email($input['email_secondary']);
+        }
+        if (array_key_exists('website', $input)) {
+            $output['website'] = esc_url_raw($input['website']);
+        }
+        if (array_key_exists('gbp_client_id', $input)) {
+            $output['gbp_client_id'] = sanitize_text_field($input['gbp_client_id']);
+        }
+        if (array_key_exists('gbp_client_secret', $input)) {
+            $output['gbp_client_secret'] = sanitize_text_field($input['gbp_client_secret']);
+        }
+        if (array_key_exists('rating_value', $input)) {
+            $output['rating_value'] = sanitize_text_field($input['rating_value']);
+        }
+        if (array_key_exists('rating_count', $input)) {
+            $output['rating_count'] = sanitize_text_field($input['rating_count']);
+        }
+
         $output['multi_location'] = !empty($input['multi_location']);
 
-        $output['hours'] = rw_bs_default_hours();
-        if (!empty($input['hours']) && is_array($input['hours'])) {
-            $sanitized_hours = array();
-            foreach ($input['hours'] as $row) {
-                $sanitized_hours[] = array(
-                    'day' => sanitize_text_field($row['day'] ?? ''),
-                    'closed' => !empty($row['closed']),
-                    'open' => sanitize_text_field($row['open'] ?? ''),
-                    'close' => sanitize_text_field($row['close'] ?? ''),
-                );
-            }
-            $output['hours'] = $sanitized_hours;
+        if (array_key_exists('schema_target_page_id', $input)) {
+            $output['schema_target_page_id'] = absint($input['schema_target_page_id']);
         }
 
-        $output['type_fields'] = array();
-        if (!empty($input['type_fields']) && is_array($input['type_fields'])) {
-            foreach ($input['type_fields'] as $key => $value) {
-                if (is_array($value)) {
-                    continue;
+        if (array_key_exists('hours', $input)) {
+            $output['hours'] = rw_bs_default_hours();
+            if (!empty($input['hours']) && is_array($input['hours'])) {
+                $sanitized_hours = array();
+                foreach ($input['hours'] as $row) {
+                    $sanitized_hours[] = array(
+                        'day' => sanitize_text_field($row['day'] ?? ''),
+                        'closed' => !empty($row['closed']),
+                        'open' => sanitize_text_field($row['open'] ?? ''),
+                        'close' => sanitize_text_field($row['close'] ?? ''),
+                    );
                 }
-                if (in_array($key, array('petsAllowed', 'acceptsReservations'), true)) {
-                    $output['type_fields'][$key] = !empty($value);
-                } else {
-                    $output['type_fields'][$key] = sanitize_text_field($value);
+                $output['hours'] = $sanitized_hours;
+            }
+        }
+
+        if (array_key_exists('type_fields', $input)) {
+            $output['type_fields'] = array();
+            if (!empty($input['type_fields']) && is_array($input['type_fields'])) {
+                foreach ($input['type_fields'] as $key => $value) {
+                    if (is_array($value)) {
+                        continue;
+                    }
+                    if (in_array($key, array('petsAllowed', 'acceptsReservations'), true)) {
+                        $output['type_fields'][$key] = !empty($value);
+                    } else {
+                        $output['type_fields'][$key] = sanitize_text_field($value);
+                    }
                 }
             }
         }
