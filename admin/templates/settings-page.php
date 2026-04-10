@@ -48,21 +48,22 @@ $is_multi = !empty($settings['multi_location']);
             <h3>Schema Output Target (Single Location)</h3>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="rw_bs_schema_target_page_id">Target Page</label></th>
-                    <td>
+                    <th scope="row"><label for="rw_bs_schema_target_page_id">Target Page <span class="required" aria-hidden="true" style="color:#d63638;">*</span></label></th>
+                    <td class="rw-bs-target-wrap">
                         <?php
                         wp_dropdown_pages(array(
-                            'name' => RW_BS_OPTION_KEY . '[schema_target_page_id]',
-                            'id' => 'rw_bs_schema_target_page_id',
-                            'show_option_none' => 'Select a page',
+                            'name'              => RW_BS_OPTION_KEY . '[schema_target_page_id]',
+                            'id'                => 'rw_bs_schema_target_page_id',
+                            'class'             => 'rw-bs-target-page',
+                            'show_option_none'  => '— Select a page —',
                             'option_none_value' => '0',
-                            'selected' => (int) ($settings['schema_target_page_id'] ?? 0),
+                            'selected'          => (int) ($settings['schema_target_page_id'] ?? 0),
                         ));
                         ?>
                         <p>
-                            <input class="regular-text" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[schema_target_path]" value="<?php echo esc_attr($settings['schema_target_path'] ?? ''); ?>" placeholder="/about-us/" />
+                            <input class="regular-text rw-bs-target-path" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[schema_target_path]" value="<?php echo esc_attr($settings['schema_target_path'] ?? ''); ?>" placeholder="/about-us/" aria-required="true" />
                         </p>
-                        <p class="description">Use the page selector when available. If the page does not appear, use a path fallback (for example, <code>/about-us/</code>).</p>
+                        <p class="description">Use the page selector when available. If the page does not appear, enter a path fallback (for example, <code>/about-us/</code>). <strong>At least one is required.</strong></p>
                     </td>
                 </tr>
             </table>
@@ -83,8 +84,16 @@ $is_multi = !empty($settings['multi_location']);
                     <select id="rw_bs_business_type" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[business_type]">
                         <?php foreach ($types as $type_key => $type_data) : ?>
                             <option value="<?php echo esc_attr($type_key); ?>" <?php selected($settings['business_type'], $type_key); ?>><?php echo esc_html($type_data['label']); ?></option>
+                            <?php if (!empty($type_data['subtypes']) && is_array($type_data['subtypes'])) : ?>
+                                <optgroup label="<?php echo esc_attr($type_data['label'] . ' Subtypes'); ?>">
+                                    <?php foreach ($type_data['subtypes'] as $subtype_key => $subtype_data) : ?>
+                                        <option value="<?php echo esc_attr($subtype_key); ?>" <?php selected($settings['business_type'], $subtype_key); ?>><?php echo esc_html($subtype_data['label']); ?></option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </select>
+                    <p class="description rw-bs-type-description"></p>
                 </td>
             </tr>
             <tr>

@@ -48,7 +48,7 @@ class RW_BS_Schema_Generator {
             );
         }
 
-        $types = RW_BS_Type_Definitions::get_types();
+        $types = RW_BS_Type_Definitions::get_flat_types();
         $type_fields = isset($settings['type_fields']) && is_array($settings['type_fields']) ? $settings['type_fields'] : array();
 
         if (isset($types[$type]['fields'])) {

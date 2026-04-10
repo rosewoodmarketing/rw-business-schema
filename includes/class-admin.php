@@ -195,16 +195,25 @@ class RW_BS_Admin {
         wp_enqueue_style('rw-bs-admin', RW_BS_URL . 'admin/css/admin.css', array(), RW_BS_VERSION);
         wp_enqueue_script('rw-bs-admin', RW_BS_URL . 'admin/js/admin.js', array('jquery'), RW_BS_VERSION, true);
 
-        $types = RW_BS_Type_Definitions::get_types();
+        $flat_types = RW_BS_Type_Definitions::get_flat_types();
         $type_groups = array();
-        foreach ($types as $key => $def) {
-            if ($def['group'] !== 'none') {
+        foreach ($flat_types as $key => $def) {
+            if (($def['group'] ?? 'none') !== 'none') {
                 $type_groups[$key] = $def['group'];
             }
         }
 
+        $type_descriptions = array();
+        foreach ($flat_types as $key => $def) {
+            $type_descriptions[$key] = $def['description'] ?? '';
+        }
+
         wp_localize_script('rw-bs-admin', 'rwBsData', array(
-            'typeGroups' => $type_groups,
+            'typeGroups'       => $type_groups,
+            'typeDescriptions' => $type_descriptions,
+            'i18n'             => array(
+                'targetRequired' => 'Please select a Target Page or enter a path before saving.',
+            ),
         ));
     }
 

@@ -14,8 +14,16 @@ if (!defined('ABSPATH')) {
             <select class="rw-bs-type-select" name="rw_bs_loc[business_type]">
                 <?php foreach ($types as $tk => $td) : ?>
                     <option value="<?php echo esc_attr($tk); ?>" <?php selected($meta['business_type'], $tk); ?>><?php echo esc_html($td['label']); ?></option>
+                    <?php if (!empty($td['subtypes']) && is_array($td['subtypes'])) : ?>
+                        <optgroup label="<?php echo esc_attr($td['label'] . ' Subtypes'); ?>">
+                            <?php foreach ($td['subtypes'] as $stk => $std) : ?>
+                                <option value="<?php echo esc_attr($stk); ?>" <?php selected($meta['business_type'], $stk); ?>><?php echo esc_html($std['label']); ?></option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </select>
+            <p class="description rw-bs-type-description"></p>
         </td>
     </tr>
     <tr>
@@ -59,21 +67,22 @@ if (!defined('ABSPATH')) {
         </td>
     </tr>
     <tr>
-        <th><label for="rw_bs_loc_schema_target_page_id">Schema Output Target</label></th>
-        <td>
+        <th><label for="rw_bs_loc_schema_target_page_id">Schema Output Target <span class="required" aria-hidden="true" style="color:#d63638;">*</span></label></th>
+        <td class="rw-bs-target-wrap">
             <?php
             wp_dropdown_pages(array(
-                'name' => 'rw_bs_loc[schema_target_page_id]',
-                'id' => 'rw_bs_loc_schema_target_page_id',
-                'show_option_none' => 'Select a page',
+                'name'              => 'rw_bs_loc[schema_target_page_id]',
+                'id'                => 'rw_bs_loc_schema_target_page_id',
+                'class'             => 'rw-bs-target-page',
+                'show_option_none'  => '— Select a page —',
                 'option_none_value' => '0',
-                'selected' => (int) ($target['page_id'] ?? 0),
+                'selected'          => (int) ($target['page_id'] ?? 0),
             ));
             ?>
             <p>
-                <input class="regular-text" type="text" name="rw_bs_loc[schema_target_path]" value="<?php echo esc_attr($target['path'] ?? ''); ?>" placeholder="/locations/downtown/" />
+                <input class="regular-text rw-bs-target-path" type="text" name="rw_bs_loc[schema_target_path]" value="<?php echo esc_attr($target['path'] ?? ''); ?>" placeholder="/locations/downtown/" aria-required="true" />
             </p>
-            <p class="description">Use the page selector when available. If the page is not available, set a path fallback (for example, <code>/locations/downtown/</code>).</p>
+            <p class="description">Use the page selector when available. If the page is not available, enter a path fallback (for example, <code>/locations/downtown/</code>). <strong>At least one is required.</strong></p>
         </td>
     </tr>
 </table>
