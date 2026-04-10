@@ -28,11 +28,14 @@ class RW_BS_Plugin {
             rw_bs_update_settings(rw_bs_get_settings());
         }
 
+        RW_BS_Locations::register_cpt();
         RW_BS_GBP_Sync::activate_schedule();
         RW_BS_Wizard::set_first_run();
+        flush_rewrite_rules();
     }
 
     public static function deactivate() {
         RW_BS_GBP_Sync::deactivate_schedule();
+        flush_rewrite_rules();
     }
 }

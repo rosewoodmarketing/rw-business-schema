@@ -20,6 +20,23 @@ class RW_BS_Shortcodes {
         return array_values(array_unique(array_merge($base, $type_keys)));
     }
 
+    private static function get_resolved_settings($atts = array()) {
+        $atts = shortcode_atts(array(
+            'location_id' => 0,
+        ), $atts);
+
+        $location_id = absint($atts['location_id']);
+        if ($location_id > 0 && class_exists('RW_BS_Locations')) {
+            return RW_BS_Locations::get_location_settings($location_id);
+        }
+
+        if (class_exists('RW_BS_Locations')) {
+            return RW_BS_Locations::get_context_settings();
+        }
+
+        return rw_bs_get_settings();
+    }
+
     public static function init() {
         add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue_assets'));
         add_shortcode('rw_business_card', array(__CLASS__, 'business_card'));
@@ -33,11 +50,11 @@ class RW_BS_Shortcodes {
     }
 
     public static function business_card($atts = array()) {
-        $settings = rw_bs_get_settings();
+        $settings = self::get_resolved_settings($atts);
 
         $html = '<div class="rw-bs-card">';
         $html .= '<h3>' . esc_html($settings['company_name']) . '</h3>';
-        $html .= '<p>' . esc_html(rw_bs_get_full_address()) . '</p>';
+        $html .= '<p>' . esc_html(rw_bs_get_full_address_from_settings($settings)) . '</p>';
 
         if (!empty($settings['phone_primary'])) {
             $html .= '<p><strong>Phone:</strong> ' . esc_html($settings['phone_primary']) . '</p>';
@@ -61,7 +78,7 @@ class RW_BS_Shortcodes {
     }
 
     public static function business_hours($atts = array()) {
-        $settings = rw_bs_get_settings();
+        $settings = self::get_resolved_settings($atts);
         $display = trim((string) $settings['hours_display']);
 
         if ($display === '') {
@@ -72,7 +89,7 @@ class RW_BS_Shortcodes {
     }
 
     public static function business_field($atts = array()) {
-        $atts = shortcode_atts(array('field' => ''), $atts, 'rw_business_field');
+        $atts = shortcode_atts(array('field' => '', 'location_id' => 0), $atts, 'rw_business_field');
         $field = sanitize_key($atts['field']);
 
         if ($field === '') {
@@ -83,7 +100,7 @@ class RW_BS_Shortcodes {
             return '';
         }
 
-        $settings = rw_bs_get_settings();
+        $settings = self::get_resolved_settings($atts);
 
         if (array_key_exists($field, $settings)) {
             return esc_html(is_scalar($settings[$field]) ? (string) $settings[$field] : '');

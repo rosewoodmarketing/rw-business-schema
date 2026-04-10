@@ -25,6 +25,8 @@ function rw_bs_get_settings() {
         'rating_value' => '',
         'rating_count' => '',
         'multi_location' => false,
+        'location_public' => false,
+        'location_slug' => 'business-location',
         'schema_target_page_id' => 0,
         'schema_target_path' => '',
         'github_token' => '',
@@ -68,12 +70,16 @@ function rw_bs_get_field($key, $default = '') {
 }
 
 function rw_bs_get_full_address() {
+    return rw_bs_get_full_address_from_settings(rw_bs_get_settings());
+}
+
+function rw_bs_get_full_address_from_settings($settings) {
     $parts = array_filter(array(
-        rw_bs_get_field('street'),
-        rw_bs_get_field('city'),
-        rw_bs_get_field('state'),
-        rw_bs_get_field('postal_code'),
-        rw_bs_get_field('country'),
+        is_array($settings) ? ($settings['street'] ?? '') : '',
+        is_array($settings) ? ($settings['city'] ?? '') : '',
+        is_array($settings) ? ($settings['state'] ?? '') : '',
+        is_array($settings) ? ($settings['postal_code'] ?? '') : '',
+        is_array($settings) ? ($settings['country'] ?? '') : '',
     ));
 
     return implode(', ', $parts);

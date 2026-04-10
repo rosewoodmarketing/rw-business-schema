@@ -136,6 +136,12 @@ class RW_BS_Admin {
         }
 
         $output['multi_location'] = !empty($input['multi_location']);
+        $output['location_public'] = !empty($input['location_public']);
+
+        if (array_key_exists('location_slug', $input)) {
+            $location_slug = sanitize_title($input['location_slug']);
+            $output['location_slug'] = $location_slug !== '' ? $location_slug : 'business-location';
+        }
 
         if (array_key_exists('schema_target_page_id', $input)) {
             $output['schema_target_page_id'] = absint($input['schema_target_page_id']);
