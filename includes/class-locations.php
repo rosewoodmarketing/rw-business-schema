@@ -57,6 +57,7 @@ class RW_BS_Locations {
         $types = RW_BS_Type_Definitions::get_types();
         $groups = RW_BS_Type_Definitions::get_groups();
         $meta = self::get_location_settings($post->ID);
+        $target = self::get_location_target($post->ID);
         $type_fields = is_array($meta['type_fields']) ? $meta['type_fields'] : array();
 
         include RW_BS_PATH . 'admin/templates/metabox-location.php';
@@ -95,6 +96,8 @@ class RW_BS_Locations {
         update_post_meta($post_id, 'rw_bs_email_primary', sanitize_email($input['email_primary'] ?? ''));
         update_post_meta($post_id, 'rw_bs_email_secondary', sanitize_email($input['email_secondary'] ?? ''));
         update_post_meta($post_id, 'rw_bs_website', esc_url_raw($input['website'] ?? ''));
+        update_post_meta($post_id, 'rw_bs_schema_target_page_id', absint($input['schema_target_page_id'] ?? 0));
+        update_post_meta($post_id, 'rw_bs_schema_target_path', sanitize_text_field($input['schema_target_path'] ?? ''));
 
         $type = in_array(($input['business_type'] ?? 'LocalBusiness'), RW_BS_Type_Definitions::get_type_keys(), true)
             ? sanitize_text_field($input['business_type'])
@@ -170,5 +173,12 @@ class RW_BS_Locations {
             'orderby' => 'title',
             'order' => 'ASC',
         ));
+    }
+
+    public static function get_location_target($post_id) {
+        return array(
+            'page_id' => absint(get_post_meta($post_id, 'rw_bs_schema_target_page_id', true)),
+            'path' => sanitize_text_field((string) get_post_meta($post_id, 'rw_bs_schema_target_path', true)),
+        );
     }
 }
