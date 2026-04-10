@@ -19,7 +19,6 @@ $connected = !empty($token_data['refresh_token']) || !empty($token_data['access_
         <div class="notice notice-success is-dismissible"><p><?php echo esc_html(sanitize_text_field(wp_unslash($_GET['rw_bs_notice']))); ?></p></div>
     <?php endif; ?>
 
-    <?php if (empty(get_option('rw_bs_wizard_done')) || isset($_GET['wizard'])) : ?>
     <div class="rw-bs-wizard-banner notice notice-info">
         <h2>Welcome to RW Business Schema</h2>
         <p>Follow these five steps to publish your business schema to search engines:</p>
@@ -30,9 +29,7 @@ $connected = !empty($token_data['refresh_token']) || !empty($token_data['access_
             <li>Click <strong>Save Settings</strong> &mdash; your <code>LocalBusiness</code> JSON-LD is now live in every page&rsquo;s <code>&lt;head&gt;</code></li>
             <li>Optionally, connect <strong>Google Business Profile</strong> to auto-sync your rating and review count</li>
         </ol>
-        <a class="button button-primary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=rw_bs_dismiss_wizard'), 'rw_bs_dismiss_wizard')); ?>">Got it, dismiss this</a>
     </div>
-    <?php endif; ?>
 
     <form method="post" action="options.php">
         <?php settings_fields('rw_bs_group'); ?>
