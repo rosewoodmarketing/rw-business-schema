@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
 class RW_BS_Admin {
     public static function init() {
         add_action('admin_menu', array(__CLASS__, 'register_menu'));
+        add_action('admin_menu', array(__CLASS__, 'normalize_menu_order'), 999);
         add_action('admin_init', array(__CLASS__, 'register_setting'));
         add_action('admin_enqueue_scripts', array(__CLASS__, 'enqueue_assets'));
     }
@@ -20,6 +21,16 @@ class RW_BS_Admin {
             array(__CLASS__, 'render_page'),
             'dashicons-store',
             56
+        );
+
+        // Always register an explicit Settings submenu for reliable parent routing.
+        add_submenu_page(
+            'rw-business-schema',
+            'Settings',
+            'Settings',
+            'manage_options',
+            'rw-business-schema',
+            array(__CLASS__, 'render_page')
         );
 
         add_submenu_page(
@@ -39,6 +50,41 @@ class RW_BS_Admin {
             'rw-bs-shortcodes-help',
             array(__CLASS__, 'render_shortcodes_help_page')
         );
+    }
+
+    public static function normalize_menu_order() {
+        global $submenu;
+
+        if (empty($submenu['rw-business-schema']) || !is_array($submenu['rw-business-schema'])) {
+            return;
+        }
+
+        $items = $submenu['rw-business-schema'];
+        $normalized = array();
+        $settings_item = null;
+
+        foreach ($items as $item) {
+            $slug = $item[2] ?? '';
+
+            if ($slug === 'rw-business-schema') {
+                if ($settings_item !== null) {
+                    continue;
+                }
+
+                $item[0] = 'Settings';
+                $settings_item = $item;
+                continue;
+            }
+
+            $normalized[] = $item;
+        }
+
+        if ($settings_item === null) {
+            $settings_item = array('Settings', 'manage_options', 'rw-business-schema', 'Settings');
+        }
+
+        array_unshift($normalized, $settings_item);
+        $submenu['rw-business-schema'] = $normalized;
     }
 
     public static function register_setting() {

@@ -31,6 +31,11 @@ RW Business Schema lets you manage your business data once and reuse it everywhe
 
 == Changelog ==
 
+= 1.0.1 =
+* Fixed admin menu routing when Multi-Location is enabled so Business Schema consistently opens Settings first.
+* Fixed missing Settings submenu edge cases by normalizing submenu ordering.
+* Kept setup/welcome instructions visible on the settings page.
+
 = 1.0.0 =
 * Initial release
 * Added business type selector with conditional fields
