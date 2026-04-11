@@ -52,6 +52,38 @@ if (class_exists('Elementor\\Core\\DynamicTags\\Tag') && !class_exists('RW_BS_El
                 }
             }
 
+            $location_options = class_exists('RW_BS_Locations')
+                ? RW_BS_Locations::get_location_choices()
+                : array();
+
+            $this->add_control(
+                'rw_bs_source',
+                array(
+                    'label' => 'Source',
+                    'type' => \Elementor\Controls_Manager::SELECT,
+                    'default' => 'auto',
+                    'options' => array(
+                        'auto' => 'Auto',
+                        'global' => 'Global Settings',
+                        'current_location' => 'Current Location',
+                        'specific_location' => 'Specific Location',
+                    ),
+                )
+            );
+
+            $this->add_control(
+                'rw_bs_location_id',
+                array(
+                    'label' => 'Location',
+                    'type' => \Elementor\Controls_Manager::SELECT,
+                    'default' => '',
+                    'options' => $location_options,
+                    'condition' => array(
+                        'rw_bs_source' => 'specific_location',
+                    ),
+                )
+            );
+
             $this->add_control(
                 'rw_bs_field',
                 array(
@@ -62,19 +94,47 @@ if (class_exists('Elementor\\Core\\DynamicTags\\Tag') && !class_exists('RW_BS_El
             );
         }
 
+        private function get_resolved_settings() {
+            $source = $this->get_settings('rw_bs_source');
+            $location_id = absint($this->get_settings('rw_bs_location_id'));
+
+            if (!class_exists('RW_BS_Locations')) {
+                return rw_bs_get_settings();
+            }
+
+            if ($source === 'global') {
+                return rw_bs_get_settings();
+            }
+
+            if ($source === 'specific_location' && $location_id > 0) {
+                return RW_BS_Locations::get_location_settings($location_id);
+            }
+
+            if ($source === 'current_location') {
+                return RW_BS_Locations::get_context_settings();
+            }
+
+            if (!empty(rw_bs_get_field('multi_location'))) {
+                return RW_BS_Locations::get_context_settings();
+            }
+
+            return rw_bs_get_settings();
+        }
+
         public function render() {
             $field = $this->get_settings('rw_bs_field');
             if (!$field) {
                 return;
             }
 
+            $settings = $this->get_resolved_settings();
+
             // Virtual composite field — full address on one line.
             if ($field === 'address_full') {
-                echo esc_html(rw_bs_get_full_address());
+                echo esc_html(rw_bs_get_full_address_from_settings($settings));
                 return;
             }
 
-            $settings = rw_bs_get_settings();
             if (isset($settings[$field]) && is_scalar($settings[$field])) {
                 echo esc_html((string) $settings[$field]);
                 return;

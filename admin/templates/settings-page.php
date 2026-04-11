@@ -44,6 +44,26 @@ $is_multi = !empty($settings['multi_location']);
             <span class="description"> &mdash; Adds a <strong>Business Locations</strong> post type to the admin menu.</span>
         </p>
 
+        <table class="form-table" role="presentation">
+            <tr>
+                <th scope="row">Public Location Pages</th>
+                <td>
+                    <label>
+                        <input type="checkbox" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[location_public]" value="1" <?php checked(!empty($settings['location_public'])); ?> <?php disabled(!$is_multi); ?> />
+                        Enable public URLs for Business Locations
+                    </label>
+                    <p class="description">Creates optional front-end URLs for the Location post type. Mapped target pages remain the primary front-end pattern.</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="rw_bs_location_slug">Location URL Slug</label></th>
+                <td>
+                    <input id="rw_bs_location_slug" class="regular-text" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[location_slug]" value="<?php echo esc_attr($settings['location_slug'] ?? 'business-location'); ?>" <?php disabled(!$is_multi); ?> />
+                    <p class="description">Sets the base path for public location URLs, for example <code>/<?php echo esc_html($settings['location_slug'] ?? 'business-location'); ?>/downtown/</code>. Use a simple static slug only. After changing this value, save and then re-save permalinks in <strong>Settings &gt; Permalinks</strong>.</p>
+                </td>
+            </tr>
+        </table>
+
         <?php if (!$is_multi) : ?>
             <h3>Schema Output Target (Single Location)</h3>
             <table class="form-table" role="presentation">

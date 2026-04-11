@@ -156,6 +156,18 @@ class RW_BS_Schema_Generator {
         $is_multi = !empty($settings['multi_location']);
 
         if ($is_multi && class_exists('RW_BS_Locations')) {
+            if (is_singular(RW_BS_Locations::CPT)) {
+                $location_id = absint(get_queried_object_id());
+                if ($location_id > 0) {
+                    $loc_schema = self::build_schema(RW_BS_Locations::get_location_settings($location_id));
+                    if (!empty($loc_schema['name'])) {
+                        echo '<script type="application/ld+json">' . wp_json_encode($loc_schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+                    }
+                }
+
+                return;
+            }
+
             $locations = RW_BS_Locations::get_all_locations();
             foreach ($locations as $loc) {
                 $target = RW_BS_Locations::get_location_target($loc->ID);

@@ -22,6 +22,8 @@ RW Business Schema lets you manage your business data once and reuse it everywhe
 - Google Business Profile rating/review sync
 - GitHub-based plugin auto-updates
 
+Developer Notes: see `AI_DEVELOPER_SETUP.md` in the plugin root for full local setup, AI-assisted workflow, and update/release guidance.
+
 == Shortcodes ==
 
 - [rw_business_card]
@@ -29,7 +31,20 @@ RW Business Schema lets you manage your business data once and reuse it everywhe
 - [rw_business_field field="company_name"]
 - [rw_business_reviews count="5"]
 
+Optional location override:
+
+- [rw_business_card location_id="123"]
+- [rw_business_hours location_id="123"]
+- [rw_business_field field="company_name" location_id="123"]
+
 == Changelog ==
+
+= 1.0.4 =
+* Added context-aware Elementor dynamic field resolution for Multi-Location mode.
+* Added automatic location resolution on mapped target pages and public singular location pages.
+* Added optional public Location pages with a configurable site-wide location slug.
+* Added context-aware shortcode support with an optional location_id override.
+* Added schema output on public singular location pages.
 
 = 1.0.3 =
 * Added all remaining second-level business subtypes.

@@ -18,6 +18,8 @@ class RW_BS_Locations {
             return;
         }
 
+        $locations_are_public = self::locations_are_public();
+
         register_post_type(self::CPT, array(
             'labels' => array(
                 'name' => 'Business Locations',
@@ -27,14 +29,33 @@ class RW_BS_Locations {
                 'edit_item' => 'Edit Location',
                 'all_items' => 'All Locations',
             ),
-            'public' => false,
+            'public' => $locations_are_public,
+            'publicly_queryable' => $locations_are_public,
             'show_ui' => true,
             'show_in_menu' => 'rw-business-schema',
+            'show_in_rest' => $locations_are_public,
             'supports' => array('title'),
-            'rewrite' => false,
+            'has_archive' => false,
+            'rewrite' => $locations_are_public
+                ? array(
+                    'slug' => self::get_public_slug(),
+                    'with_front' => false,
+                )
+                : false,
+            'query_var' => $locations_are_public,
             'capability_type' => 'post',
             'map_meta_cap' => true,
         ));
+    }
+
+    public static function locations_are_public() {
+        return !empty(rw_bs_get_field('multi_location')) && !empty(rw_bs_get_field('location_public'));
+    }
+
+    public static function get_public_slug() {
+        $slug = sanitize_title((string) rw_bs_get_field('location_slug', 'business-location'));
+
+        return $slug !== '' ? $slug : 'business-location';
     }
 
     public static function add_metabox() {
@@ -175,10 +196,120 @@ class RW_BS_Locations {
         ));
     }
 
+    public static function get_location_choices() {
+        $choices = array();
+
+        foreach (self::get_all_locations() as $location) {
+            $choices[$location->ID] = $location->post_title !== ''
+                ? $location->post_title
+                : 'Location #' . $location->ID;
+        }
+
+        return $choices;
+    }
+
     public static function get_location_target($post_id) {
         return array(
             'page_id' => absint(get_post_meta($post_id, 'rw_bs_schema_target_page_id', true)),
             'path' => sanitize_text_field((string) get_post_meta($post_id, 'rw_bs_schema_target_path', true)),
         );
+    }
+
+    public static function get_context_settings($location_id = 0) {
+        $location_id = absint($location_id);
+
+        if ($location_id > 0) {
+            return self::get_location_settings($location_id);
+        }
+
+        $location_id = self::get_location_id_for_current_request();
+        if ($location_id > 0) {
+            return self::get_location_settings($location_id);
+        }
+
+        return rw_bs_get_settings();
+    }
+
+    public static function get_location_id_for_current_request() {
+        if (is_admin() || empty(rw_bs_get_field('multi_location'))) {
+            return 0;
+        }
+
+        if (is_singular(self::CPT)) {
+            return absint(get_queried_object_id());
+        }
+
+        $page_id = absint(get_queried_object_id());
+        $path = self::get_current_request_path();
+
+        return self::find_location_id_by_target($page_id, $path);
+    }
+
+    public static function find_location_id_by_target($page_id = 0, $path = '') {
+        $page_id = absint($page_id);
+        $path = self::normalize_path($path);
+
+        foreach (self::get_all_locations() as $location) {
+            $target = self::get_location_target($location->ID);
+            $target_page_id = absint($target['page_id'] ?? 0);
+            $target_path = self::normalize_path($target['path'] ?? '');
+
+            if ($page_id > 0 && $target_page_id === $page_id) {
+                return (int) $location->ID;
+            }
+
+            if ($path !== '' && $target_path !== '' && $target_path === $path) {
+                return (int) $location->ID;
+            }
+        }
+
+        return 0;
+    }
+
+    private static function normalize_path($path) {
+        $path = trim((string) $path);
+        if ($path === '') {
+            return '';
+        }
+
+        if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
+            $parsed_path = wp_parse_url($path, PHP_URL_PATH);
+            $path = is_string($parsed_path) ? $parsed_path : '';
+        }
+
+        if ($path === '') {
+            return '';
+        }
+
+        $path = '/' . ltrim($path, '/');
+        $path = preg_replace('/\/+/', '/', $path);
+
+        if ($path !== '/') {
+            $path = untrailingslashit($path) . '/';
+        }
+
+        return strtolower($path);
+    }
+
+    private static function get_current_request_path() {
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? (string) wp_unslash($_SERVER['REQUEST_URI']) : '/';
+        $path = wp_parse_url($request_uri, PHP_URL_PATH);
+
+        if (!is_string($path) || $path === '') {
+            $path = '/';
+        }
+
+        $site_path = wp_parse_url(home_url('/'), PHP_URL_PATH);
+        if (is_string($site_path) && $site_path !== '' && $site_path !== '/') {
+            $site_path = rtrim($site_path, '/');
+            if (strpos($path, $site_path) === 0) {
+                $path = substr($path, strlen($site_path));
+                if ($path === false || $path === '') {
+                    $path = '/';
+                }
+            }
+        }
+
+        return self::normalize_path($path);
     }
 }
