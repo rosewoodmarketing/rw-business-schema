@@ -22,6 +22,8 @@ RW Business Schema lets you manage your business data once and reuse it everywhe
 - Google Business Profile rating/review sync
 - GitHub-based plugin auto-updates
 
+Developer Notes: see `AI_DEVELOPER_SETUP.md` in the plugin root for full local setup, AI-assisted workflow, and update/release guidance.
+
 == Shortcodes ==
 
 - [rw_business_card]
