@@ -113,6 +113,10 @@ class RW_BS_Admin {
             }
         }
 
+        if (array_key_exists('hours_display', $input)) {
+            $output['hours_display'] = wp_kses_post($input['hours_display']);
+        }
+
         if (array_key_exists('email_primary', $input)) {
             $output['email_primary'] = sanitize_email($input['email_primary']);
         }
