@@ -20,10 +20,26 @@ if (class_exists('Elementor\\Core\\DynamicTags\\Tag') && !class_exists('RW_BS_El
 
         public function get_categories() {
             if (class_exists('Elementor\\Modules\\DynamicTags\\Module')) {
-                return array(\Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY);
+                $categories = array(
+                    \Elementor\Modules\DynamicTags\Module::TEXT_CATEGORY,
+                );
+
+                if (defined('Elementor\\Modules\\DynamicTags\\Module::URL_CATEGORY')) {
+                    $categories[] = \Elementor\Modules\DynamicTags\Module::URL_CATEGORY;
+                }
+
+                if (defined('Elementor\\Modules\\DynamicTags\\Module::NUMBER_CATEGORY')) {
+                    $categories[] = \Elementor\Modules\DynamicTags\Module::NUMBER_CATEGORY;
+                }
+
+                if (defined('Elementor\\Modules\\DynamicTags\\Module::POST_META_CATEGORY')) {
+                    $categories[] = \Elementor\Modules\DynamicTags\Module::POST_META_CATEGORY;
+                }
+
+                return array_values(array_unique($categories));
             }
 
-            return array('text');
+            return array('text', 'url', 'number', 'post-meta');
         }
 
         protected function register_controls() {
@@ -136,6 +152,11 @@ if (class_exists('Elementor\\Core\\DynamicTags\\Tag') && !class_exists('RW_BS_El
             }
 
             if (isset($settings[$field]) && is_scalar($settings[$field])) {
+                if ($field === 'hours_display') {
+                    echo wp_kses_post((string) $settings[$field]);
+                    return;
+                }
+
                 echo esc_html((string) $settings[$field]);
                 return;
             }

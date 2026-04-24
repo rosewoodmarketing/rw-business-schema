@@ -29,7 +29,6 @@ require_once RW_BS_PATH . 'includes/class-locations.php';
 require_once RW_BS_PATH . 'includes/class-hours-handler.php';
 require_once RW_BS_PATH . 'includes/class-schema-generator.php';
 require_once RW_BS_PATH . 'includes/class-shortcodes.php';
-require_once RW_BS_PATH . 'includes/class-elementor-field-tag.php';
 require_once RW_BS_PATH . 'includes/class-elementor-integration.php';
 require_once RW_BS_PATH . 'includes/class-gbp-oauth.php';
 require_once RW_BS_PATH . 'includes/class-gbp-sync.php';

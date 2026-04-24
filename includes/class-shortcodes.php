@@ -83,9 +83,10 @@ class RW_BS_Shortcodes {
 
         if ($display === '') {
             $display = RW_BS_Hours_Handler::to_display_hours($settings['hours']);
+            return '<pre class="rw-bs-hours">' . esc_html($display) . '</pre>';
         }
 
-        return '<pre class="rw-bs-hours">' . esc_html($display) . '</pre>';
+        return '<pre class="rw-bs-hours">' . wp_kses_post($display) . '</pre>';
     }
 
     public static function business_field($atts = array()) {
@@ -103,6 +104,10 @@ class RW_BS_Shortcodes {
         $settings = self::get_resolved_settings($atts);
 
         if (array_key_exists($field, $settings)) {
+            if ($field === 'hours_display') {
+                return wp_kses_post(is_scalar($settings[$field]) ? (string) $settings[$field] : '');
+            }
+
             return esc_html(is_scalar($settings[$field]) ? (string) $settings[$field] : '');
         }
 

@@ -114,6 +114,8 @@ class RW_BS_Locations {
             update_post_meta($post_id, 'rw_bs_' . $field, sanitize_text_field($input[$field] ?? ''));
         }
 
+        update_post_meta($post_id, 'rw_bs_hours_display', wp_kses_post($input['hours_display'] ?? ''));
+
         update_post_meta($post_id, 'rw_bs_email_primary', sanitize_email($input['email_primary'] ?? ''));
         update_post_meta($post_id, 'rw_bs_email_secondary', sanitize_email($input['email_secondary'] ?? ''));
         update_post_meta($post_id, 'rw_bs_website', esc_url_raw($input['website'] ?? ''));
