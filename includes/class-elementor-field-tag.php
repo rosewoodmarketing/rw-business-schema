@@ -15,7 +15,7 @@ if (class_exists('Elementor\\Core\\DynamicTags\\Tag') && !class_exists('RW_BS_El
         }
 
         public function get_group() {
-            return 'site';
+            return 'rw-business-schema';
         }
 
         public function get_categories() {
@@ -44,21 +44,23 @@ if (class_exists('Elementor\\Core\\DynamicTags\\Tag') && !class_exists('RW_BS_El
 
         protected function register_controls() {
             $options = array(
-                'company_name'    => 'Company Name',
-                'address_full'    => 'Address (Full)',
-                'street'          => 'Street',
-                'city'            => 'City',
-                'state'           => 'State',
-                'postal_code'     => 'Postal Code',
-                'country'         => 'Country',
-                'phone_primary'   => 'Primary Phone',
-                'phone_secondary' => 'Secondary Phone',
-                'email_primary'   => 'Primary Email',
-                'email_secondary' => 'Secondary Email',
-                'price_range'     => 'Price Range',
-                'hours_display'   => 'Display Hours',
-                'rating_value'    => 'Rating Value',
-                'rating_count'    => 'Rating Count',
+                'company_name'         => 'Company Name',
+                'address_full'         => 'Address (Full)',
+                'street'               => 'Street',
+                'city'                 => 'City',
+                'state'                => 'State',
+                'postal_code'          => 'Postal Code',
+                'country'              => 'Country',
+                'phone_primary'        => 'Primary Phone',
+                'phone_secondary'      => 'Secondary Phone',
+                'phone_primary_link'   => 'Primary Phone Link (tel:)',
+                'phone_secondary_link' => 'Secondary Phone Link (tel:)',
+                'email_primary'        => 'Primary Email',
+                'email_secondary'      => 'Secondary Email',
+                'price_range'          => 'Price Range',
+                'hours_display'        => 'Display Hours',
+                'rating_value'         => 'Rating Value',
+                'rating_count'         => 'Rating Count',
             );
 
             $groups = RW_BS_Type_Definitions::get_groups();
@@ -148,6 +150,15 @@ if (class_exists('Elementor\\Core\\DynamicTags\\Tag') && !class_exists('RW_BS_El
             // Virtual composite field — full address on one line.
             if ($field === 'address_full') {
                 echo esc_html(rw_bs_get_full_address_from_settings($settings));
+                return;
+            }
+
+            // Computed phone link fields — output a tel: URI for use in link controls.
+            if ($field === 'phone_primary_link' || $field === 'phone_secondary_link') {
+                $phone_key = ($field === 'phone_primary_link') ? 'phone_primary' : 'phone_secondary';
+                $phone     = isset($settings[$phone_key]) && is_scalar($settings[$phone_key]) ? (string) $settings[$phone_key] : '';
+                $country   = isset($settings['country']) && is_scalar($settings['country']) ? (string) $settings['country'] : '';
+                echo esc_url(rw_bs_get_phone_tel_link($phone, $country));
                 return;
             }
 

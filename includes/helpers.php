@@ -130,3 +130,103 @@ function rw_bs_decrypt_value($ciphertext) {
     $decrypted = openssl_decrypt($encrypted, $cipher, $key, OPENSSL_RAW_DATA, $iv);
     return $decrypted === false ? '' : $decrypted;
 }
+
+/**
+ * Returns the list of country presets available in the admin dropdown.
+ * Keys and values are both the full country name (stored as the country field value).
+ *
+ * @return array<string, string>
+ */
+function rw_bs_get_country_presets() {
+    return array(
+        'United States'  => 'United States',
+        'Canada'         => 'Canada',
+        'Mexico'         => 'Mexico',
+        'United Kingdom' => 'United Kingdom',
+        'Germany'        => 'Germany',
+        'France'         => 'France',
+        'Spain'          => 'Spain',
+        'Italy'          => 'Italy',
+        'Netherlands'    => 'Netherlands',
+    );
+}
+
+/**
+ * Returns a map of country name => international dialing prefix (e.g. '+1').
+ *
+ * @return array<string, string>
+ */
+function rw_bs_get_dialing_codes() {
+    return array(
+        'United States'  => '+1',
+        'Canada'         => '+1',
+        'Mexico'         => '+52',
+        'United Kingdom' => '+44',
+        'Germany'        => '+49',
+        'France'         => '+33',
+        'Spain'          => '+34',
+        'Italy'          => '+39',
+        'Netherlands'    => '+31',
+    );
+}
+
+/**
+ * Returns a phone number with its international dialing prefix applied.
+ * If the phone already starts with '+', it is returned as-is.
+ * If the country has no known code, the raw phone value is returned.
+ *
+ * @param string $phone   The raw phone number as entered by the user.
+ * @param string $country The country name (must match a key in rw_bs_get_dialing_codes()).
+ * @return string
+ */
+function rw_bs_get_phone_international( $phone, $country = '' ) {
+    $phone   = trim( (string) $phone );
+    $country = trim( (string) $country );
+
+    if ( $phone === '' ) {
+        return '';
+    }
+
+    // Already has an international prefix — respect it as-is.
+    if ( strpos( $phone, '+' ) === 0 ) {
+        return $phone;
+    }
+
+    $codes = rw_bs_get_dialing_codes();
+    $code  = isset( $codes[ $country ] ) ? $codes[ $country ] : '';
+
+    if ( $code === '' ) {
+        return $phone;
+    }
+
+    $digits = preg_replace( '/\D/', '', $phone );
+
+    // US/Canada share +1. Strip a leading '1' if the user typed a full 11-digit NANP number
+    // (e.g. 14155551234) to avoid producing +114155551234.
+    if ( $code === '+1' && strlen( $digits ) === 11 && $digits[0] === '1' ) {
+        $digits = substr( $digits, 1 );
+    }
+
+    return $code . $digits;
+}
+
+/**
+ * Returns a tel: URI string suitable for use in href attributes and Elementor dynamic link controls.
+ * Returns an empty string when the phone is empty.
+ *
+ * @param string $phone   The raw phone number.
+ * @param string $country The country name.
+ * @return string  e.g. "tel:+14155551234"
+ */
+function rw_bs_get_phone_tel_link( $phone, $country = '' ) {
+    $international = rw_bs_get_phone_international( $phone, $country );
+
+    if ( $international === '' ) {
+        return '';
+    }
+
+    // tel: URIs allow digits and a leading '+' only — strip spaces, dashes, parentheses, etc.
+    $clean = preg_replace( '/[^\d+]/', '', $international );
+
+    return 'tel:' . $clean;
+}

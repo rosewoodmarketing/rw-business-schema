@@ -123,14 +123,29 @@ $is_multi = !empty($settings['multi_location']);
                     <p><input class="regular-text" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[city]" value="<?php echo esc_attr($settings['city']); ?>" placeholder="City" /></p>
                     <p><input class="regular-text" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[state]" value="<?php echo esc_attr($settings['state']); ?>" placeholder="State" /></p>
                     <p><input class="regular-text" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[postal_code]" value="<?php echo esc_attr($settings['postal_code']); ?>" placeholder="Postal Code" /></p>
-                    <p><input class="regular-text" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[country]" value="<?php echo esc_attr($settings['country']); ?>" placeholder="Country" /></p>
+                    <p>
+                        <select class="rw-bs-country-select" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[country]">
+                            <option value="">— Select Country —</option>
+                            <?php foreach (rw_bs_get_country_presets() as $country_name => $country_label) : ?>
+                                <option value="<?php echo esc_attr($country_name); ?>" <?php selected($settings['country'], $country_name); ?>><?php echo esc_html($country_label); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </p>
                 </td>
             </tr>
             <tr>
                 <th scope="row">Phone</th>
                 <td>
-                    <p><input class="regular-text" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[phone_primary]" value="<?php echo esc_attr($settings['phone_primary']); ?>" placeholder="Primary Phone" /></p>
-                    <p><input class="regular-text" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[phone_secondary]" value="<?php echo esc_attr($settings['phone_secondary']); ?>" placeholder="Secondary Phone" /></p>
+                    <p><input class="regular-text rw-bs-phone-primary" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[phone_primary]" value="<?php echo esc_attr($settings['phone_primary']); ?>" placeholder="Primary Phone" /></p>
+                    <p>
+                        <input class="regular-text rw-bs-phone-primary-link" type="text" readonly value="<?php echo esc_attr(rw_bs_get_phone_tel_link($settings['phone_primary'], $settings['country'])); ?>" placeholder="tel: link (auto-generated)" />
+                        <span class="description">Primary Phone Link &mdash; use in Elementor dynamic link controls or <code>[rw_business_field field="phone_primary_link"]</code></span>
+                    </p>
+                    <p><input class="regular-text rw-bs-phone-secondary" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[phone_secondary]" value="<?php echo esc_attr($settings['phone_secondary']); ?>" placeholder="Secondary Phone" /></p>
+                    <p>
+                        <input class="regular-text rw-bs-phone-secondary-link" type="text" readonly value="<?php echo esc_attr(rw_bs_get_phone_tel_link($settings['phone_secondary'], $settings['country'])); ?>" placeholder="tel: link (auto-generated)" />
+                        <span class="description">Secondary Phone Link &mdash; use in Elementor dynamic link controls or <code>[rw_business_field field="phone_secondary_link"]</code></span>
+                    </p>
                 </td>
             </tr>
             <tr>

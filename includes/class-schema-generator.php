@@ -29,7 +29,7 @@ class RW_BS_Schema_Generator {
                 'postalCode' => sanitize_text_field($settings['postal_code']),
                 'addressCountry' => sanitize_text_field($settings['country']),
             ),
-            'telephone' => sanitize_text_field($settings['phone_primary']),
+            'telephone' => rw_bs_get_phone_international(sanitize_text_field($settings['phone_primary']), sanitize_text_field($settings['country'])),
             'email' => sanitize_email($settings['email_primary']),
             'url' => esc_url($settings['website']),
             'priceRange' => sanitize_text_field($settings['price_range']),

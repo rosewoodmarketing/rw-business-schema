@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RW Business Schema
  * Description: Local business schema manager with Elementor dynamic fields, shortcodes, GBP rating sync, and GitHub auto-updates.
- * Version: 1.0.4
+ * Version: 1.0.6
  * Author: Rosewood Marketing
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 define('RW_BS_FILE', __FILE__);
 define('RW_BS_PATH', plugin_dir_path(__FILE__));
 define('RW_BS_URL', plugin_dir_url(__FILE__));
-define('RW_BS_VERSION', '1.0.4');
+define('RW_BS_VERSION', '1.0.6');
 define('RW_BS_OPTION_KEY', 'rw_bs_settings');
 define('RW_BS_GBP_TOKEN_KEY', 'rw_bs_gbp_tokens');
 define('RW_BS_GITHUB_REPO', 'rosewoodmarketing/rw-business-schema');

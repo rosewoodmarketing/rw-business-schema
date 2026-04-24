@@ -8,7 +8,8 @@ class RW_BS_Shortcodes {
     private static function get_allowed_field_keys() {
         $base = array(
             'business_type', 'company_name', 'street', 'city', 'state', 'postal_code', 'country',
-            'phone_primary', 'phone_secondary', 'email_primary', 'email_secondary', 'website',
+            'phone_primary', 'phone_secondary', 'phone_primary_link', 'phone_secondary_link',
+            'email_primary', 'email_secondary', 'website',
             'price_range', 'hours_display', 'rating_value', 'rating_count', 'gbp_last_sync',
         );
 
@@ -102,6 +103,14 @@ class RW_BS_Shortcodes {
         }
 
         $settings = self::get_resolved_settings($atts);
+
+        // Computed phone link fields.
+        if ($field === 'phone_primary_link' || $field === 'phone_secondary_link') {
+            $phone_key = ($field === 'phone_primary_link') ? 'phone_primary' : 'phone_secondary';
+            $phone     = isset($settings[$phone_key]) && is_scalar($settings[$phone_key]) ? (string) $settings[$phone_key] : '';
+            $country   = isset($settings['country']) && is_scalar($settings['country']) ? (string) $settings['country'] : '';
+            return esc_attr(rw_bs_get_phone_tel_link($phone, $country));
+        }
 
         if (array_key_exists($field, $settings)) {
             if ($field === 'hours_display') {

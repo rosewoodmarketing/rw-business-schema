@@ -3,7 +3,36 @@
 
   var typeGroups        = (window.rwBsData && window.rwBsData.typeGroups)       ? window.rwBsData.typeGroups       : {};
   var typeDescriptions  = (window.rwBsData && window.rwBsData.typeDescriptions) ? window.rwBsData.typeDescriptions : {};
+  var dialingCodes      = (window.rwBsData && window.rwBsData.dialingCodes)     ? window.rwBsData.dialingCodes     : {};
   var i18n              = (window.rwBsData && window.rwBsData.i18n)             ? window.rwBsData.i18n             : {};
+
+  /* ---- phone tel-link auto-generation ---- */
+  function computeTelLink(phone, country) {
+    phone = String(phone || '').trim();
+    if (!phone) { return ''; }
+    // Already internationalized — strip formatting only.
+    if (phone.charAt(0) === '+') {
+      return 'tel:' + phone.replace(/[^\d+]/g, '');
+    }
+    var code   = dialingCodes[country] || '';
+    var digits = phone.replace(/\D/g, '');
+    if (!code) { return 'tel:' + digits; }
+    // US/Canada: strip leading 1 from a full 11-digit NANP number to avoid +114155551234.
+    if (code === '+1' && digits.length === 11 && digits.charAt(0) === '1') {
+      digits = digits.substring(1);
+    }
+    return 'tel:' + code + digits;
+  }
+
+  function updatePhoneLinks($wrapper) {
+    var country = $wrapper.find('.rw-bs-country-select').val() || '';
+    $wrapper.find('.rw-bs-phone-primary-link').val(
+      computeTelLink($wrapper.find('.rw-bs-phone-primary').val(), country)
+    );
+    $wrapper.find('.rw-bs-phone-secondary-link').val(
+      computeTelLink($wrapper.find('.rw-bs-phone-secondary').val(), country)
+    );
+  }
 
   /* ---- business type field toggling ---- */
   function toggleTypeFields(selectEl) {
@@ -38,6 +67,17 @@
   }
 
   $(document).ready(function () {
+
+    /* phone links — initialize readonly link fields on page load */
+    $('form[action="options.php"], #poststuff').each(function () {
+      updatePhoneLinks($(this));
+    });
+
+    /* phone links — live-update when country or phone changes */
+    $(document).on('change input', '.rw-bs-country-select, .rw-bs-phone-primary, .rw-bs-phone-secondary', function () {
+      var $wrapper = $(this).closest('form, #poststuff, .rw-bs-admin-wrap');
+      updatePhoneLinks($wrapper);
+    });
 
     /* settings page — business type */
     toggleTypeFields('#rw_bs_business_type');

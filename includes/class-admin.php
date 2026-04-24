@@ -221,6 +221,7 @@ class RW_BS_Admin {
         wp_localize_script('rw-bs-admin', 'rwBsData', array(
             'typeGroups'       => $type_groups,
             'typeDescriptions' => $type_descriptions,
+            'dialingCodes'     => rw_bs_get_dialing_codes(),
             'i18n'             => array(
                 'targetRequired' => 'Please select a Target Page or enter a path before saving.',
             ),
