@@ -74,13 +74,16 @@ function rw_bs_get_full_address() {
 }
 
 function rw_bs_get_full_address_from_settings($settings) {
-    $parts = array_filter(array(
-        is_array($settings) ? ($settings['street'] ?? '') : '',
-        is_array($settings) ? ($settings['city'] ?? '') : '',
-        is_array($settings) ? ($settings['state'] ?? '') : '',
-        is_array($settings) ? ($settings['postal_code'] ?? '') : '',
-        is_array($settings) ? ($settings['country'] ?? '') : '',
-    ));
+    $street      = is_array($settings) ? ($settings['street'] ?? '') : '';
+    $city        = is_array($settings) ? ($settings['city'] ?? '') : '';
+    $state       = is_array($settings) ? ($settings['state'] ?? '') : '';
+    $postal_code = is_array($settings) ? ($settings['postal_code'] ?? '') : '';
+    $country     = is_array($settings) ? ($settings['country'] ?? '') : '';
+
+    // Join state and postal code with a space (no comma between them)
+    $state_zip = implode(' ', array_filter(array($state, $postal_code)));
+
+    $parts = array_filter(array($street, $city, $state_zip, $country));
 
     return implode(', ', $parts);
 }
