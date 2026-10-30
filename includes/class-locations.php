@@ -162,10 +162,16 @@ class RW_BS_Locations {
     public static function get_location_settings($post_id) {
         $base = rw_bs_get_settings();
 
+        // A branch shouldn't inherit the main office's map pin; these only apply when set on the location.
+        $base['latitude'] = '';
+        $base['longitude'] = '';
+        $base['map_url'] = '';
+
         $scalar = array(
             'company_name', 'street', 'city', 'state', 'postal_code', 'country',
             'phone_primary', 'phone_secondary', 'email_primary', 'email_secondary',
             'website', 'price_range', 'hours_display', 'rating_value', 'rating_count', 'business_type',
+            'latitude', 'longitude', 'map_url',
         );
 
         foreach ($scalar as $field) {

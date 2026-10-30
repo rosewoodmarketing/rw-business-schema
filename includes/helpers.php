@@ -19,6 +19,15 @@ function rw_bs_get_settings() {
         'email_secondary' => '',
         'website' => '',
         'price_range' => '',
+        'description' => '',
+        'logo_url' => '',
+        'latitude' => '',
+        'longitude' => '',
+        'map_url' => '',
+        'same_as' => '',
+        'area_served' => '',
+        'yoast_merge' => true,
+        'schema_include_rating' => false,
         'hours_display' => '',
         'hours' => rw_bs_default_hours(),
         'type_fields' => array(),
@@ -47,16 +56,48 @@ function rw_bs_default_hours() {
     $days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
     $hours = array();
 
+    // Weekends default to closed so an unedited form never claims weekend hours.
     foreach ($days as $day) {
         $hours[] = array(
             'day' => $day,
-            'closed' => false,
+            'closed' => in_array($day, array('Saturday', 'Sunday'), true),
             'open' => '09:00',
             'close' => '17:00',
         );
     }
 
     return $hours;
+}
+
+/**
+ * Splits a newline-separated settings textarea into trimmed, non-empty lines.
+ *
+ * @param string $value
+ * @return string[]
+ */
+function rw_bs_lines($value) {
+    $lines = preg_split('/\r\n|\r|\n/', (string) $value);
+    return array_values(array_filter(array_map('trim', $lines), 'strlen'));
+}
+
+/**
+ * True when the business schema should be merged into Yoast SEO's site-wide Organization
+ * instead of printed as a separate block (single-location mode, Yoast active and set to "Organization").
+ */
+function rw_bs_use_yoast_merge($settings = null) {
+    if ($settings === null) {
+        $settings = rw_bs_get_settings();
+    }
+
+    if (!empty($settings['multi_location']) || empty($settings['yoast_merge']) || !defined('WPSEO_VERSION')) {
+        return false;
+    }
+
+    if (class_exists('WPSEO_Options') && WPSEO_Options::get('company_or_person', 'company') !== 'company') {
+        return false;
+    }
+
+    return true;
 }
 
 function rw_bs_get_field($key, $default = '') {

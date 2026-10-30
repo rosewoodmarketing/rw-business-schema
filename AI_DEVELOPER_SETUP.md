@@ -102,6 +102,19 @@ Multi-location mode:
   3. Mapped target path
 - If no location resolves, fallback is global settings.
 
+Yoast SEO integration (single-location):
+
+- `rw_bs_use_yoast_merge()` (in `helpers.php`) is true when: not Multi-Location, the `yoast_merge` setting is on, `WPSEO_VERSION` is defined, and Yoast's `company_or_person` is `company`.
+- When true, `RW_BS_Schema_Generator::merge_into_yoast()` (hooked to `wpseo_schema_organization`, priority 20) merges `build_schema()` into Yoast's Organization node:
+  - The business type is appended to `@type`.
+  - `@context`, `@type`, `@id` and `logo` are dropped from our data, so Yoast keeps its `@id` and logo object.
+  - `sameAs` lists are combined and de-duplicated on lowercased, untrailingslashed URLs.
+- `output_schema()` returns early in that mode, so there's no second LocalBusiness block.
+- Otherwise the standalone block is printed on the Target Page with `@id` = `home_url('/#localbusiness')`.
+- Location blocks use `@id` = permalink + `#localbusiness`, and add `parentOrganization` → `home_url('/#organization')` when Yoast is active.
+
+Logo note: Yoast reports SVG logos as 1x1px, which is below Google's 112x112 minimum. Recommend a PNG in Yoast's Organization logo. `logo_url` becomes `image` (and `logo` when standalone).
+
 Elementor dynamic tag source modes:
 
 - Auto
