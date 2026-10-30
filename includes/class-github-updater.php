@@ -8,6 +8,7 @@ class RW_BS_GitHub_Updater {
     public static function init() {
         add_filter('pre_set_site_transient_update_plugins', array(__CLASS__, 'check_for_update'));
         add_filter('plugins_api', array(__CLASS__, 'plugin_info'), 20, 3);
+        add_filter('upgrader_source_selection', array(__CLASS__, 'fix_source_dir'), 10, 4);
         add_action('update_option_' . RW_BS_OPTION_KEY, array(__CLASS__, 'maybe_clear_cache'), 10, 2);
     }
 
@@ -112,6 +113,29 @@ class RW_BS_GitHub_Updater {
         }
 
         return esc_url_raw($candidate);
+    }
+
+    /**
+     * GitHub zipballs unpack to "owner-repo-<sha>/". Rename to the plugin's folder so WordPress
+     * replaces the existing plugin instead of installing a copy and deactivating this one.
+     */
+    public static function fix_source_dir($source, $remote_source, $upgrader, $hook_extra = array()) {
+        global $wp_filesystem;
+
+        if (empty($hook_extra['plugin']) || $hook_extra['plugin'] !== plugin_basename(RW_BS_FILE)) {
+            return $source;
+        }
+
+        $desired = trailingslashit($remote_source) . dirname(plugin_basename(RW_BS_FILE)) . '/';
+        if (untrailingslashit($source) === untrailingslashit($desired)) {
+            return $source;
+        }
+
+        if ($wp_filesystem && $wp_filesystem->move(untrailingslashit($source), untrailingslashit($desired), true)) {
+            return $desired;
+        }
+
+        return new WP_Error('rw_bs_rename_failed', 'RW Business Schema: could not rename the update folder.');
     }
 
     public static function plugin_info($res, $action, $args) {

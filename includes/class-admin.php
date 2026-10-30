@@ -139,6 +139,37 @@ class RW_BS_Admin {
             $output['rating_count'] = sanitize_text_field($input['rating_count']);
         }
 
+        if (array_key_exists('description', $input)) {
+            $output['description'] = sanitize_textarea_field($input['description']);
+        }
+        if (array_key_exists('logo_url', $input)) {
+            $output['logo_url'] = esc_url_raw($input['logo_url']);
+        }
+        if (array_key_exists('map_url', $input)) {
+            $output['map_url'] = esc_url_raw($input['map_url']);
+        }
+        foreach (array('latitude', 'longitude') as $coord) {
+            if (array_key_exists($coord, $input)) {
+                $value = trim((string) $input[$coord]);
+                $output[$coord] = is_numeric($value) ? $value : '';
+            }
+        }
+        if (array_key_exists('same_as', $input)) {
+            $urls = array_filter(rw_bs_lines($input['same_as']), function ($line) {
+                return (bool) preg_match('#^https?://\S+$#i', $line);
+            });
+            $output['same_as'] = implode("\n", array_map('esc_url_raw', $urls));
+        }
+        if (array_key_exists('area_served', $input)) {
+            $output['area_served'] = implode("\n", array_map('sanitize_text_field', rw_bs_lines($input['area_served'])));
+        }
+
+        // These checkboxes only render in single-location mode; leave them alone otherwise.
+        if (empty($input['multi_location'])) {
+            $output['yoast_merge'] = !empty($input['yoast_merge']);
+            $output['schema_include_rating'] = !empty($input['schema_include_rating']);
+        }
+
         $output['multi_location'] = !empty($input['multi_location']);
         $output['location_public'] = !empty($input['location_public']);
 

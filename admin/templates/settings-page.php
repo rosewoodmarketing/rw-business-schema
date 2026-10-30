@@ -32,6 +32,26 @@ $is_multi = !empty($settings['multi_location']);
         </ol>
     </div>
 
+    <?php if (defined('WPSEO_VERSION') && !$is_multi) : ?>
+        <div class="notice notice-info inline rw-bs-notes">
+            <h3>How this works with Yoast SEO</h3>
+            <ul style="list-style:disc;margin-left:1.5em;">
+                <li><strong>Yoast already describes the business</strong> on every page as an <code>Organization</code> (name, logo, social links from Yoast &gt; Settings &gt; Site representation).</li>
+                <li><strong>With "Add these details to Yoast's Organization schema" on</strong> (recommended), this plugin adds its details into that same Organization: the business type (e.g. HomeAndConstructionBusiness), address, phone, hours, description, map location, service area and extra social profiles. Search engines see <em>one</em> business on every page, and the Target Page setting is ignored.</li>
+                <li><strong>Yoast keeps control of:</strong> the business name shown in Yoast, the <code>@id</code>, and the <strong>logo</strong>. Social links from both places are combined, with duplicates removed.</li>
+                <li><strong>This only works when Yoast's Site representation is set to "Organization".</strong> If it's set to "Person", or the checkbox is off, this plugin prints its own separate LocalBusiness block on the Target Page instead.</li>
+                <li>To check the result, run a page through Google's <a href="https://search.google.com/test/rich-results" target="_blank" rel="noopener">Rich Results Test</a> and look for one Organization / Local business item.</li>
+            </ul>
+            <h3>Logo: PNG, not SVG</h3>
+            <ul style="list-style:disc;margin-left:1.5em;">
+                <li><strong>Yoast can't read the size of an SVG</strong>, so it reports the logo as 1&times;1 pixels in the schema. Google requires a logo of at least 112&times;112px, so an SVG logo is likely to be ignored.</li>
+                <li>PNG/JPG logos are also handled more reliably by Google, social networks and AI tools.</li>
+                <li><strong>Fix:</strong> upload a PNG version of the logo (square-ish, 512&times;512px is a safe size) and set it in <strong>Yoast &gt; Settings &gt; Site representation &gt; Organization logo</strong>. In Yoast mode that's the logo search engines get. Also paste the same PNG URL in <strong>Logo / Image URL</strong> below; it's used as the business image, and as the logo when Yoast isn't in use.</li>
+                <li>Keep the SVG in the site header &mdash; this only affects the schema.</li>
+            </ul>
+        </div>
+    <?php endif; ?>
+
     <form method="post" action="options.php">
         <?php settings_fields('rw_bs_group'); ?>
 
@@ -67,6 +87,18 @@ $is_multi = !empty($settings['multi_location']);
         <?php if (!$is_multi) : ?>
             <h3>Schema Output Target (Single Location)</h3>
             <table class="form-table" role="presentation">
+                <?php if (defined('WPSEO_VERSION')) : ?>
+                <tr>
+                    <th scope="row">Yoast SEO</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[yoast_merge]" value="1" <?php checked(!empty($settings['yoast_merge'])); ?> />
+                            Add these details to Yoast's Organization schema on every page (recommended)
+                        </label>
+                        <p class="description">Search engines then see one business instead of two. The target page below is only used when this is off. Requires Yoast &gt; Settings &gt; Site representation set to <strong>Organization</strong>.</p>
+                    </td>
+                </tr>
+                <?php endif; ?>
                 <tr>
                     <th scope="row"><label for="rw_bs_schema_target_page_id">Target Page <span class="required" aria-hidden="true" style="color:#d63638;">*</span></label></th>
                     <td class="rw-bs-target-wrap">
@@ -171,6 +203,45 @@ $is_multi = !empty($settings['multi_location']);
                     </select>
                 </td>
             </tr>
+            <tr>
+                <th scope="row"><label for="rw_bs_description">Business Description</label></th>
+                <td>
+                    <textarea id="rw_bs_description" class="large-text" rows="3" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[description]"><?php echo esc_textarea($settings['description'] ?? ''); ?></textarea>
+                    <p class="description">One or two plain sentences: what you do, for whom, and where. AI search tools use this to summarize the business.</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="rw_bs_logo_url">Logo / Image URL</label></th>
+                <td>
+                    <input id="rw_bs_logo_url" class="regular-text" type="url" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[logo_url]" value="<?php echo esc_attr($settings['logo_url'] ?? ''); ?>" />
+                    <p class="description">Use a <strong>PNG</strong> (or JPG/WebP), square-ish, at least 112&times;112px &mdash; 512&times;512px is a safe size. See the logo note below.</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Map Location</th>
+                <td>
+                    <p>
+                        <input class="small-text" style="width:9em" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[latitude]" value="<?php echo esc_attr($settings['latitude'] ?? ''); ?>" placeholder="Latitude" />
+                        <input class="small-text" style="width:9em" type="text" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[longitude]" value="<?php echo esc_attr($settings['longitude'] ?? ''); ?>" placeholder="Longitude" />
+                    </p>
+                    <p><input class="regular-text" type="url" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[map_url]" value="<?php echo esc_attr($settings['map_url'] ?? ''); ?>" placeholder="Google Maps link" /></p>
+                    <p class="description">Right-click the business pin in Google Maps to copy its coordinates.</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="rw_bs_same_as">Social &amp; Directory Profiles</label></th>
+                <td>
+                    <textarea id="rw_bs_same_as" class="large-text code" rows="4" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[same_as]" placeholder="https://www.facebook.com/yourbusiness/"><?php echo esc_textarea($settings['same_as'] ?? ''); ?></textarea>
+                    <p class="description">One URL per line: Facebook, Instagram, LinkedIn, YouTube, Google Business Profile, BBB, etc.</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="rw_bs_area_served">Service Area</label></th>
+                <td>
+                    <textarea id="rw_bs_area_served" class="large-text" rows="4" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[area_served]" placeholder="Bedford, Pennsylvania"><?php echo esc_textarea($settings['area_served'] ?? ''); ?></textarea>
+                    <p class="description">One place per line. Use <code>City, State</code> for towns, or just a region name (e.g. <code>Central Pennsylvania</code>).</p>
+                </td>
+            </tr>
         </table>
 
         <h2>Business Type Fields</h2>
@@ -230,6 +301,13 @@ $is_multi = !empty($settings['multi_location']);
         <p>
             <label>Rating Value <input type="number" min="1" max="5" step="0.1" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[rating_value]" value="<?php echo esc_attr($settings['rating_value']); ?>" /></label>
             <label>Review Count <input type="number" min="0" step="1" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[rating_count]" value="<?php echo esc_attr($settings['rating_count']); ?>" /></label>
+        </p>
+        <p>
+            <label>
+                <input type="checkbox" name="<?php echo esc_attr(RW_BS_OPTION_KEY); ?>[schema_include_rating]" value="1" <?php checked(!empty($settings['schema_include_rating'])); ?> />
+                Include rating in schema
+            </label>
+            <span class="description"> &mdash; Off by default. Google doesn't show stars for a business's own rating, and the reviews must be visible on the page. The rating still works in the reviews shortcode.</span>
         </p>
         <?php endif; ?>
 
